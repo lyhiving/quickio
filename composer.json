@@ -1,0 +1,22 @@
+{
+  "name": "lyhiving/quickio",
+  "description": "Quick and high performance IO read and write",
+  "keywords": ["quickio","high performance"],
+  "homepage": "https://github.com/lyhiving/quickio",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "lyhiving",
+      "email": "lyhiving@gmail.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=5.4",
+    "ext-gd": "*"
+  },
+  "autoload": {
+    "psr-4": { "lyhiving\\quickio\\": "src/" }
+  },
+  "minimum-stability": "dev"
+}
