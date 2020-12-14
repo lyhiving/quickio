@@ -9,7 +9,7 @@ PHP 超低内存遍历目录文件和读取超大文件。
 ```json
 {
   "require": {
-    "lyhiving/quick": "1.0.*"
+    "lyhiving/quickio": "1.0.*"
   }
 }
 ```
