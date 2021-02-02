@@ -118,4 +118,49 @@ class quickio
             return fclose($handle2);
         }
     }
+
+    // 查询webserver
+    public static function sapi() {
+        $sapi = PHP_SAPI;
+        $val = null;
+        switch ( $sapi ) {
+            case 'fpm-fcgi':
+            $val = 'nginx';
+            break;
+            case 'cgi-fcgi':
+            $val = 'nginx';
+            break;
+            case 'apache2handler':
+            $val = 'apache';
+            break;
+            case 'cli':
+            $val = 'cli';
+            break;
+            default:
+            $val = $sapi;
+            break;
+        }
+        return $val;
+    }
+
+    // 耗时任务执行
+    public static function output( $str = '' ,$type='') {
+        @ini_set( 'max_execution_time', '0' );
+        $sapi = self::sapi();
+        ignore_user_abort( true );
+        if(!$type) $type = 'text/html;charset=utf-8';
+        if ( $sapi == 'nginx' ) {
+            echo $str;
+            fastcgi_finish_request();
+        } else if ( $sapi == 'apache' ) {
+            ob_end_flush();
+            ob_start();
+            echo $str;
+            header( 'Content-Type: '.$type );
+            header( 'Connection: close' );
+            header( 'Content-Length: ' . ob_get_length() );
+            ob_flush();
+            flush();
+        }
+    }
 }

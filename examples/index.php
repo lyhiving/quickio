@@ -47,3 +47,17 @@ echo "---START copy file---" . PHP_EOL;
 $ret = quickio::copy('./logs/jd.log','./logs/jd.log.new');
 var_dump($ret);
 echo "---END copy file---" . PHP_EOL . PHP_EOL;
+
+
+
+// 先输出，其他可执行内容
+echo "---START output first---" . PHP_EOL;
+quickio::output('RUN First! You can see this.');
+echo "YOU CAN'T SEE ME! ". PHP_EOL;
+sleep(1);
+file_put_contents('./logs/output.log', date('Y-m-d H:i:s'). PHP_EOL, FILE_APPEND | LOCK_EX);
+sleep(2);
+file_put_contents('./logs/output.log', date('Y-m-d H:i:s'). PHP_EOL,FILE_APPEND | LOCK_EX);
+sleep(2);
+echo "BUT YOU CAN RUN OTHER THINGS ". PHP_EOL;
+echo "---END output first---" . PHP_EOL . PHP_EOL;

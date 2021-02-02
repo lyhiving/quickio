@@ -66,11 +66,25 @@ var_dump($lines);
 
 复制文件：
 
+
 ```php
 $ret = quickio::copy('./logs/jd.log','./logs/jd.log.new');
 var_dump($ret);
 ```
 
 
+优先输出：
+
+`在执行耗时任务时需要提前返回。`
+
+`这个时候http的进程已结束，客户端可以快速根据响应进行处理。但在服务端php代码会继续执行余下的内容`
+
+`对命令行无效，仅针对web服务`
+
+```php
+quickio::output('RUN First! You can see this.');
+echo "YOU CAN'T SEE ME! ". PHP_EOL;
+echo "BUT YOU CAN RUN OTHER THINGS ". PHP_EOL;
+```
 
 🌹Thanks TO： [小明](https://segmentfault.com/a/1190000019051193)
