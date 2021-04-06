@@ -66,12 +66,17 @@ var_dump($lines);
 
 复制文件：
 
-
 ```php
 $ret = quickio::copy('./logs/jd.log','./logs/jd.log.new');
 var_dump($ret);
 ```
 
+递归删除文件夹：
+
+```php
+$ret = quickio::rmdir('./logs/abc');
+var_dump($ret);
+```
 
 优先输出：
 

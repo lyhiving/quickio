@@ -49,6 +49,12 @@ var_dump($ret);
 echo "---END copy file---" . PHP_EOL . PHP_EOL;
 
 
+// 递归删除文件夹
+echo "---START Recursive Delete Folder---" . PHP_EOL;
+$ret = quickio::rmdir('./logs/abc/');
+var_dump($ret);
+echo "---END Recursive Delete Folder---" . PHP_EOL . PHP_EOL;
+
 
 // 先输出，其他可执行内容
 echo "---START output first---" . PHP_EOL;
