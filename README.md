@@ -78,6 +78,23 @@ $ret = quickio::rmdir('./logs/abc');
 var_dump($ret);
 ```
 
+
+GET远程地址：
+
+```php
+$data = quickio::url('get','https://httpbin.org/get',[],['file_get_contents'=>false]);
+var_dump($data);
+```
+
+POST远程地址：
+
+```php
+$data = quickio::url('post','http://httpbin.org/post',['date'=>date('Y-m-d H:i:s')],['file_get_contents'=>true]);
+    var_dump($data);
+```
+
+
+
 优先输出：
 
 `在执行耗时任务时需要提前返回。`

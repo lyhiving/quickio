@@ -6,7 +6,9 @@ use lyhiving\quickio\quickio;
 
 // $quickio = new quickio();
 
-// // 遍历目录
+
+
+// 遍历目录
 echo "---START glob Dir---" . PHP_EOL;
 $glob = quickio::glob('./logs');
 // $glob = quickio::glob('./logs',true); //如需读取文件夹
@@ -55,6 +57,20 @@ $ret = quickio::rmdir('./logs/abc/');
 var_dump($ret);
 echo "---END Recursive Delete Folder---" . PHP_EOL . PHP_EOL;
 
+
+
+// 读取远程
+echo "---START get---" . PHP_EOL;
+$data = quickio::url('get','https://httpbin.org/get',[],['file_get_contents'=>false]);
+    var_dump($data);
+echo "---END get url---" . PHP_EOL . PHP_EOL;
+
+
+// POST远程
+echo "---START post url---" . PHP_EOL;
+$data = quickio::url('post','http://httpbin.org/post',['date'=>date('Y-m-d H:i:s')],['file_get_contents'=>true]);
+    var_dump($data);
+echo "---END post url---" . PHP_EOL . PHP_EOL;
 
 // 先输出，其他可执行内容
 echo "---START output first---" . PHP_EOL;

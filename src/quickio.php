@@ -189,4 +189,69 @@ class quickio
         }
         return false;
     }
+
+
+    // 访问远程
+    public static function url($method, $url, $data = [], $extopt = [], $timeout = null)
+    {
+        $method = strtoupper($method);
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+        if (!function_exists('curl_init') || ($extopt && isset($extopt['file_get_contents']) && $extopt['file_get_contents'])) {
+            if(isset($extopt['file_get_contents'])) unset($extopt['file_get_contents']);
+            if (is_array($data)) {
+                $data = http_build_query($data, null, '&');
+            }
+            $opts = array(
+                $scheme => array(
+                    'method' => $method,
+                    'header' => '',
+                    'content' => $data,
+                    'timeout' => 60,
+                    'Connection' => "close"
+                )
+            );
+            if (!is_numeric($timeout)) unset($opts[$scheme]['timeout']);
+            if (is_null($data)) unset($opts[$scheme]['content']);
+
+            if ($scheme == 'https') { //忽略证书部分
+                $extopt["ssl"] = array(
+                    "verify_peer" => false,
+                    "verify_peer_name" => false,
+                );
+            }
+            if ($extopt) {
+                if (isset($extopt['header']) && $extopt['header'] && is_array($extopt['header'])) {
+                    $extopt['header'] = implode('\r\n', $extopt['header']);
+                }
+                $opts = array_merge($opts, $extopt);
+            }
+            $context = stream_context_create($opts);
+            $content = file_get_contents($url, false, $context);
+            return $content;
+        } else {
+            if(isset($extopt['file_get_contents'])) unset($extopt['file_get_contents']);
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            if ($method == 'POST') {
+                curl_setopt($ch, CURLOPT_POST, 1);
+                if (is_array($data)) {
+                    $data = http_build_query($data, null, '&');
+                }
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            }
+            if($method == 'GET'){
+                curl_setopt($ch, CURLOPT_HTTPGET, true); 
+            }
+
+            if (isset($extopt['header']) && $extopt['header'] && is_array($extopt['header'])) {
+                array_push($extopt['header'], 'Content-Length:' . strlen($data));
+                
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $extopt['header']);
+            }
+            $content = curl_exec($ch);
+            curl_close($ch);
+            return $content;
+        }
+    }
 }
