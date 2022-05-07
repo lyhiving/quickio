@@ -6,10 +6,37 @@ use lyhiving\quickio\quickio;
 
 // $quickio = new quickio();
 
+ 
+// echo "---set cache path---" . PHP_EOL;
+// quickio::setCachePath('./cache/');
+// var_dump(quickio::getCachePath());
+
+// echo "---set cache data---" . PHP_EOL;
+// quickio::set('p2', __FILE__);
+
+// echo "---get cache data---" . PHP_EOL;
+// $cache = quickio::get('p2');
+// var_dump($cache);
+
+// echo "---delete cache data---" . PHP_EOL;
+// quickio::del('p2');
+
+// echo "---no cache output---" . PHP_EOL;
+// quickio::noCache();
+
+// echo "---browser cache output---" . PHP_EOL;
+// quickio::ieCache(600);
+
+
+// echo "---quick dump output---" . PHP_EOL;
+// quickio::dump([__FILE__,__LINE__]);
+
+// echo "---quick dump output end exit ---" . PHP_EOL;
+// quickio::_dump([__FILE__,__LINE__]);
 
 
 // 遍历目录
-echo "---START glob Dir---" . PHP_EOL;
+echo "---start glob dir---" . PHP_EOL;
 $glob = quickio::glob('./logs');
 // $glob = quickio::glob('./logs',true); //如需读取文件夹
 while ($glob->valid()) {
@@ -19,7 +46,7 @@ while ($glob->valid()) {
     // 指向下一个，不能少
     $glob->next();
 }
-echo "---END glob Dir---" . PHP_EOL . PHP_EOL;
+echo "---end glob dir---" . PHP_EOL . PHP_EOL;
 
 // 单行读取大文件
 echo "---START read file by single line---" . PHP_EOL;

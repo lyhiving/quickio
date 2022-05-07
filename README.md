@@ -79,6 +79,59 @@ var_dump($ret);
 ```
 
 
+
+文件类缓存操作：
+
+```php
+echo "---set cache path---" . PHP_EOL;
+quickio::setCachePath('./cache/');
+var_dump(quickio::getCachePath());
+
+echo "---set cache data---" . PHP_EOL;
+quickio::set('p2', __FILE__);
+
+echo "---get cache data---" . PHP_EOL;
+$cache = quickio::get('p2');
+var_dump($cache);
+
+echo "---delete cache data---" . PHP_EOL;
+quickio::del('p2');
+```
+
+
+浏览器缓存操作：
+
+```php
+echo "---no cache output---" . PHP_EOL;
+quickio::noCache();
+
+echo "---browser cache output---" . PHP_EOL;
+quickio::ieCache(600);
+```
+
+
+
+简单输出：
+
+```php
+echo "---quick dump output---" . PHP_EOL;
+quickio::dump([__FILE__,__LINE__]);
+
+echo "---quick dump output end exit ---" . PHP_EOL;
+quickio::_dump([__FILE__,__LINE__]);
+```
+
+递归删除文件夹：
+
+```php
+$ret = quickio::rmdir('./logs/abc');
+var_dump($ret);
+```
+
+
+
+
+
 GET远程地址：
 
 ```php
