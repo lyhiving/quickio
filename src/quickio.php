@@ -5,7 +5,8 @@ namespace lyhiving\quickio;
 class quickio
 {
     const SAFEDOT = "/#SAFE#/";
-
+    const DEBUGPRE = __NAMESPACE__ . '\_debug_pre';
+    const CACHEPATH = __NAMESPACE__ . '\CACHE_PATH';
 
     /**
      * 遍历文件夹，可指定是否包括文件夹
@@ -347,13 +348,13 @@ class quickio
 
     public static function setCachePath($path)
     {
-        $_ENV[__NAMESPACE__ . '\CACHE_PATH'] = $path;
+        $_ENV[self::CACHEPATH] = $path;
     }
 
 
     public static function getCachePath()
     {
-        return $_ENV[__NAMESPACE__ . '\CACHE_PATH'];
+        return $_ENV[self::CACHEPATH];
     }
 
     /**
@@ -389,7 +390,7 @@ class quickio
      */
     public static function get($file, $path = null, $iscachevar = 0)
     {
-        if (!$path) $path =  $_ENV[__NAMESPACE__ . '\CACHE_PATH'];
+        if (!$path) $path =  $_ENV[self::CACHEPATH];
         $cachefile = $path . self::SAFEDOT . $file;
         if ($iscachevar) {
             $key = __NAMESPACE__ . '\cache_' . (strpos($file, '.php') ? substr($file, 0, -4) : $file);
@@ -409,7 +410,7 @@ class quickio
     public static function set($file, $array, $path = null)
     {
         $array = "<?php\nreturn " . var_export($array, true) . ";";
-        $cachefile = ($path ? $path :  $_ENV[__NAMESPACE__ . '\CACHE_PATH']) . self::SAFEDOT . $file;
+        $cachefile = ($path ? $path :  $_ENV[self::CACHEPATH]) . self::SAFEDOT . $file;
         $strlen = self::writeFile($cachefile, $array);
         return $strlen;
     }
@@ -423,7 +424,7 @@ class quickio
      */
     public static function del($file, $path = '')
     {
-        $cachefile = ($path ? $path :  $_ENV[__NAMESPACE__ . '\CACHE_PATH']) . self::SAFEDOT . $file;
+        $cachefile = ($path ? $path :  $_ENV[self::CACHEPATH]) . self::SAFEDOT . $file;
         $key = __NAMESPACE__ . '\cache_' . (strpos($file, '.php') ? substr($file, 0, -4) : $file);
         if (isset($_ENV[$key])) unset($_ENV[$key]);
         return @unlink($cachefile);
@@ -472,7 +473,7 @@ class quickio
      */
     public static function console($var, $label = null, $echo = true)
     {
-        $debug = isset($_ENV[__NAMESPACE__ . '\_debug_pre']) && is_array($_ENV[__NAMESPACE__ . '\_debug_pre']) ? $_ENV[__NAMESPACE__ . '\_debug_pre'] : debug_backtrace();
+        $debug = isset($_ENV[self::DEBUGPRE]) && is_array($_ENV[self::DEBUGPRE]) ? $_ENV[self::DEBUGPRE] : debug_backtrace();
         $echostr = '';
         $str = '[DEBUG]: ' . self::logtime() .' '. (defined('IA_ROOT') ? substr($debug[0]['file'], strlen(IA_ROOT)) : $debug[0]['file']) . ':(' . $debug[0]['line'] . ")" . PHP_EOL;
 
@@ -505,7 +506,7 @@ class quickio
             return self::console($var, $label);
         }
         $label = ($label === null) ? '' : rtrim($label) . ' ';
-        $debug = isset($_ENV[__NAMESPACE__ . '\_debug_pre']) && is_array($_ENV[__NAMESPACE__ . '\_debug_pre']) ? $_ENV[__NAMESPACE__ . '\_debug_pre'] : debug_backtrace();
+        $debug = isset($_ENV[self::DEBUGPRE]) && is_array($_ENV[self::DEBUGPRE]) ? $_ENV[self::DEBUGPRE] : debug_backtrace();
         $mtime = explode(' ', microtime());
         $ntime = microtime(true);
         $_ENV['dumpOrderID'] = isset($_ENV['dumpOrderID']) && $_ENV['dumpOrderID'] ? $_ENV['dumpOrderID'] + 1 : 1;
@@ -542,7 +543,7 @@ class quickio
 
     public static function _dump($var, $label = null, $strict = true, $echo = true)
     {
-        if(!isset($_ENV[__NAMESPACE__ . '\_debug_pre']))   $_ENV[__NAMESPACE__ . '\_debug_pre'] = debug_backtrace();
+        if(!isset($_ENV[self::DEBUGPRE]))   $_ENV[self::DEBUGPRE] = debug_backtrace();
         self::dump($var, $label, $strict, $echo);
         exit;
     }
