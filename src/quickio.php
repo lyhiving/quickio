@@ -542,7 +542,7 @@ class quickio
 
     public static function _dump($var, $label = null, $strict = true, $echo = true)
     {
-        $debug = debug_backtrace();
+        if(!isset($_ENV[__NAMESPACE__ . '\_debug_pre']))   $_ENV[__NAMESPACE__ . '\_debug_pre'] = debug_backtrace();
         self::dump($var, $label, $strict, $echo);
         exit;
     }
