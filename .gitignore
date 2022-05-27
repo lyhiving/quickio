@@ -1,2 +1,6 @@
 examples/logs
 .nova/*
+composer.lock
+.vscode/*
+vendor/autoload.php
+vendor/composer/*
