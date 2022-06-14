@@ -84,7 +84,11 @@ $ret = quickio::rmdir('./logs/abc/');
 var_dump($ret);
 echo "---END Recursive Delete Folder---" . PHP_EOL . PHP_EOL;
 
-
+// CORS 跨域:
+//header send nothing happend 
+// echo "---CORS ---" . PHP_EOL;
+// quickio::cors('*');
+ 
 
 // 读取远程
 echo "---START get---" . PHP_EOL;

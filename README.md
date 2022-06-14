@@ -129,7 +129,11 @@ var_dump($ret);
 ```
 
 
+CORS 跨域：
 
+```php
+quickio::CORS('*');
+```
 
 
 GET远程地址：
