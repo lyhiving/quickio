@@ -4,9 +4,9 @@ namespace lyhiving\quickio;
 
 class quickio
 {
-    const SAFEDOT = "/#SAFE#/";
-    const DEBUGPRE = __NAMESPACE__ . '\_debug_pre';
-    const CACHEPATH = __NAMESPACE__ . '\CACHE_PATH';
+    public const SAFEDOT = "/#SAFE#/";
+    public const DEBUGPRE = __NAMESPACE__ . '\_debug_pre';
+    public const CACHEPATH = __NAMESPACE__ . '\CACHE_PATH';
 
     /**
      * 遍历文件夹，可指定是否包括文件夹
@@ -154,11 +154,13 @@ class quickio
         @ini_set('max_execution_time', '0');
         $sapi = self::sapi();
         ignore_user_abort(true);
-        if (!$type) $type = 'text/html;charset=utf-8';
+        if (!$type) {
+            $type = 'text/html;charset=utf-8';
+        }
         if ($sapi == 'nginx') {
             echo $str;
             fastcgi_finish_request();
-        } else if ($sapi == 'apache') {
+        } elseif ($sapi == 'apache') {
             ob_end_flush();
             ob_start();
             echo $str;
@@ -174,7 +176,9 @@ class quickio
     public static function rmdir($dir)
     {
         // 打开指定目录
-        if (!is_dir($dir)) return true;
+        if (!is_dir($dir)) {
+            return true;
+        }
         if ($handle = @opendir($dir)) {
             while (($file = readdir($handle)) !== false) {
                 if (($file == ".") || ($file == "..")) {
@@ -201,7 +205,9 @@ class quickio
         $method = strtoupper($method);
         $scheme = parse_url($url, PHP_URL_SCHEME);
         if (!function_exists('curl_init') || ($extopt && isset($extopt['file_get_contents']) && $extopt['file_get_contents'])) {
-            if (isset($extopt['file_get_contents'])) unset($extopt['file_get_contents']);
+            if (isset($extopt['file_get_contents'])) {
+                unset($extopt['file_get_contents']);
+            }
             if (is_array($data)) {
                 $data = http_build_query($data, null, '&');
             }
@@ -214,8 +220,12 @@ class quickio
                     'Connection' => "close"
                 )
             );
-            if (!is_numeric($timeout)) unset($opts[$scheme]['timeout']);
-            if (is_null($data)) unset($opts[$scheme]['content']);
+            if (!is_numeric($timeout)) {
+                unset($opts[$scheme]['timeout']);
+            }
+            if (is_null($data)) {
+                unset($opts[$scheme]['content']);
+            }
 
             if ($scheme == 'https') { //忽略证书部分
                 $extopt["ssl"] = array(
@@ -234,7 +244,9 @@ class quickio
             $content = @file_get_contents($url, false, $context);
             return $content;
         } else {
-            if (isset($extopt['file_get_contents'])) unset($extopt['file_get_contents']);
+            if (isset($extopt['file_get_contents'])) {
+                unset($extopt['file_get_contents']);
+            }
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -261,36 +273,80 @@ class quickio
     }
 
 
-    // 用eTag来识别内容变化
-    public static function eTag($content)
+
+    /**
+     * 判断以什么开始
+     */
+    public static function isStartWith($haystack, $needle)
     {
-        // ob_start(); 
-        $sEtag = md5($content);
-        if ($_SERVER['HTTP_IF_NONE_MATCH'] == $sEtag) {
+        return strpos($haystack, $needle) === 0;
+    }
+
+
+    /**
+     * 判断以什么结束
+     */
+    public static function isEndWith($haystack, $needle)
+    {
+        if (strlen($haystack) < strlen($needle)) return false;
+        return $needle === substr($haystack, 0 - strlen($needle));
+    }
+
+
+    // 静态缓存
+    public static function webCache(&$valueArray, $config = array(), $clean = false)
+    {
+        return webcache::cache($valueArray, $config, $clean);
+    }
+
+    //静态缓存生成回调
+    public static function webCacheCallback(&$buffer)
+    {
+        return webcache::callback($buffer);
+    }
+
+
+    // 用eTag来识别内容变化
+    public static function eTag($content, $echo = true)
+    {
+        $sEtag = $sEtagCheck = md5($content);
+        if ($_SERVER['HTTP_IF_NONE_MATCH'] && self::isStartWith($_SERVER['HTTP_IF_NONE_MATCH'], 'W/')) {
+            $sEtagCheck = 'W/"' . $sEtag . '"';
+        }
+        //确保有变化就通知更新
+        @header('Etag: "' . $sEtag . '"');
+        if (in_array($_SERVER['HTTP_IF_NONE_MATCH'], array($sEtag, $sEtagCheck))) {
             @header('HTTP/1.1 304 Not Modified');
-            @header_remove("Cache-Control");
-            @header_remove("Pragma");
-            @header_remove("Expires");
         } else {
-            @header('Etag: "' . $sEtag . '"');
-            @header_remove("Cache-Control");
-            @header_remove("Pragma");
-            @header_remove("Expires");
-            echo $content;
+            if ($echo) {
+                echo $content;
+            }
         }
     }
 
 
-    // 浏览器缓存
-    public static function ieCache($offset = 3600)
+    /** 
+     * 浏览器缓存
+     *  $offser 缓存时间
+     *  $starttime 开始缓存的时间，默认就是time()
+     *  $content 内容标识，如有则输出eTag 
+     */
+    public static function ieCache($offset = 3600, $start = null, $content = null)
     {
         @header_remove("Cache-Control");
         @header_remove("Pragma");
         @header_remove("Expires");
+        @header_remove("Last-Modified");
         @header("Cache-Control: public");
         @header("Pragma: cache");
-        $ExpStr = "Expires: " . gmdate("D, d M Y H:i:s", time() + $offset) . " GMT";
-        @header($ExpStr);
+        if (is_null($start)) {
+            $start = time();
+        }
+        @header("Expires: " . gmdate("D, d M Y H:i:s", $start + $offset) . " GMT");
+        @header("Last-Modified: " . gmdate("D, d M Y H:i:s", $start) . " GMT");
+        if ($content) {
+            self::eTag($content, false);
+        }
     }
 
     /**
@@ -368,7 +424,9 @@ class quickio
     public static function writeFile($file, $data, $append = false)
     {
         $dir = dirname($file);
-        if (!is_dir($dir)) mkdir($dir, 0755, true);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
         $result = false;
         $fp = @fopen($file, $append ? 'ab' : 'wb');
         if ($fp && @flock($fp, LOCK_EX)) {
@@ -390,7 +448,9 @@ class quickio
      */
     public static function get($file, $path = null, $iscachevar = 0)
     {
-        if (!$path) $path =  $_ENV[self::CACHEPATH];
+        if (!$path) {
+            $path =  $_ENV[self::CACHEPATH];
+        }
         $cachefile = $path . self::SAFEDOT . $file;
         if ($iscachevar) {
             $key = __NAMESPACE__ . '\cache_' . (strpos($file, '.php') ? substr($file, 0, -4) : $file);
@@ -410,7 +470,7 @@ class quickio
     public static function set($file, $array, $path = null)
     {
         $array = "<?php\nreturn " . var_export($array, true) . ";";
-        $cachefile = ($path ? $path :  $_ENV[self::CACHEPATH]) . self::SAFEDOT . $file;
+        $cachefile = ($path ? $path : $_ENV[self::CACHEPATH]) . self::SAFEDOT . $file;
         $strlen = self::writeFile($cachefile, $array);
         return $strlen;
     }
@@ -424,9 +484,11 @@ class quickio
      */
     public static function del($file, $path = '')
     {
-        $cachefile = ($path ? $path :  $_ENV[self::CACHEPATH]) . self::SAFEDOT . $file;
+        $cachefile = ($path ? $path : $_ENV[self::CACHEPATH]) . self::SAFEDOT . $file;
         $key = __NAMESPACE__ . '\cache_' . (strpos($file, '.php') ? substr($file, 0, -4) : $file);
-        if (isset($_ENV[$key])) unset($_ENV[$key]);
+        if (isset($_ENV[$key])) {
+            unset($_ENV[$key]);
+        }
         return @unlink($cachefile);
     }
 
@@ -475,7 +537,7 @@ class quickio
     {
         $debug = isset($_ENV[self::DEBUGPRE]) && is_array($_ENV[self::DEBUGPRE]) ? $_ENV[self::DEBUGPRE] : debug_backtrace();
         $echostr = '';
-        $str = '[DEBUG]: ' . self::logtime() .' '. (defined('IA_ROOT') ? substr($debug[0]['file'], strlen(IA_ROOT)) : $debug[0]['file']) . ':(' . $debug[0]['line'] . ")" . PHP_EOL;
+        $str = '[DEBUG]: ' . self::logtime() . ' ' . (defined('IA_ROOT') ? substr($debug[0]['file'], strlen(IA_ROOT)) : $debug[0]['file']) . ':(' . $debug[0]['line'] . ")" . PHP_EOL;
 
         if (is_string($var)) {
             $str .= $echostr .= ($label ? '\'' . $label . '\' =>\'' : '') . $var . ($label ? '\',' : '') . PHP_EOL;
@@ -489,12 +551,13 @@ class quickio
         return $str;
     }
 
-    public static function CORS($limit='') {
+    public static function CORS($limit = '')
+    {
         // Allow from any origin
         if (isset($_SERVER['HTTP_ORIGIN'])) {
-            if(!$limit){
+            if (!$limit) {
                 $domain = $_SERVER['HTTP_ORIGIN'] ? $_SERVER['HTTP_ORIGIN'] : "*";
-            }else{
+            } else {
                 $domain = $limit;
             }
             header("Access-Control-Allow-Origin: {$domain}");
@@ -503,10 +566,12 @@ class quickio
         }
         // Access-Control headers are received during OPTIONS requests
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-            if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
+            if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
                 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-            if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
+            }
+            if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
                 header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+            }
         }
     }
 
@@ -564,7 +629,9 @@ class quickio
 
     public static function _dump($var, $label = null, $strict = true, $echo = true)
     {
-        if(!isset($_ENV[self::DEBUGPRE]))   $_ENV[self::DEBUGPRE] = debug_backtrace();
+        if (!isset($_ENV[self::DEBUGPRE])) {
+            $_ENV[self::DEBUGPRE] = debug_backtrace();
+        }
         self::dump($var, $label, $strict, $echo);
         exit;
     }
