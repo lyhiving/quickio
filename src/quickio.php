@@ -528,6 +528,20 @@ class quickio
         return self::udate('Y-m-d H:i:s.u');
     }
 
+    /**
+     * 文件单行转数组
+     */
+    public static function lineToArray($line, $isfile = true)
+    {
+        if ($isfile) {
+            if (!is_readable($line)) return array();
+            $line = self::read($line);
+        }
+        $data = preg_split("/[\n\r]+/", $line, -1, PREG_SPLIT_NO_EMPTY);
+        if (!$data) return array();
+        return $data;
+    }
+
 
 
     /**
