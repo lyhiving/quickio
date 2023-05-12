@@ -539,6 +539,9 @@ class quickio
         }
         $data = preg_split("/[\n\r]+/", $line, -1, PREG_SPLIT_NO_EMPTY);
         if (!$data) return array();
+        foreach($data as $k=>$v){
+            $data[$k] = trim($v);
+        }
         return $data;
     }
 
