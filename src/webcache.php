@@ -143,7 +143,7 @@ class webcache
     /*
      * 功能:写文件
      */
-    protected function write($fileName, &$content)
+    protected static function write($fileName, &$content)
     {
         if (self::$writeHook && function_exists(self::$writeHook)) {
             $writehook = self::$writeHook;
@@ -163,7 +163,7 @@ class webcache
         @unlink($fileName);
     }
 
-    protected function in()
+    protected static function in()
     {
         if (self::$_stop) {
             quickio::noCache();
@@ -189,7 +189,7 @@ class webcache
     /*
      * 功能:参数设定与排序
      */
-    protected function getFileName(&$valueArray)
+    protected static function getFileName(&$valueArray)
     {
         //目录
         $fileNameDir = self::$_filePath;
@@ -216,8 +216,8 @@ class webcache
                         $fileName .= $k.'-'.$v;
                     }
                     for ($i = 0; $i<strlen($v); $i++) {
-                        $VarOrd1 += ord($v{$i})*$i;
-                        $VarOrd2 += ord($v{$i})*($i*2+1);
+                        $VarOrd1 += ord($v[$i])*$i;
+                        $VarOrd2 += ord($v[$i])*($i*2+1);
                     }
                 }
                 if (!$fileName) {
