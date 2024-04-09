@@ -171,8 +171,8 @@ class webcache
             $ftime = filemtime(self::$baseDir.self::$_fileName);
             quickio::ieCache(self::$expiresTime, $ftime, self::$_fileName.'@'.$ftime);
         }
-        if ($_GET['e']) {
-            header("lyhiving: ".self::$_fileName);
+        if (isset($_GET['e']) && $_GET['e']) {
+            header("QuickIO: ".self::$_fileName);
         }
         readfile(self::$baseDir.self::$_fileName);
         exit();
@@ -263,7 +263,7 @@ class webcache
             self::write(self::$baseDir.self::$_fileName, $buffer);
         }
         if ($_GET['i']) {
-            header("lyhiving: ".self::$_fileName);
+            header("QuickIO: ".self::$_fileName);
         }
         return $buffer;
     }

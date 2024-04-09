@@ -310,12 +310,12 @@ class quickio
     public static function eTag($content, $echo = true)
     {
         $sEtag = $sEtagCheck = md5($content);
-        if ($_SERVER['HTTP_IF_NONE_MATCH'] && self::isStartWith($_SERVER['HTTP_IF_NONE_MATCH'], 'W/')) {
+        if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] && self::isStartWith($_SERVER['HTTP_IF_NONE_MATCH'], 'W/')) {
             $sEtagCheck = 'W/"' . $sEtag . '"';
         }
         //确保有变化就通知更新
         @header('Etag: "' . $sEtag . '"');
-        if (in_array($_SERVER['HTTP_IF_NONE_MATCH'], array($sEtag, $sEtagCheck))) {
+        if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && in_array($_SERVER['HTTP_IF_NONE_MATCH'], array($sEtag, $sEtagCheck))) {
             @header('HTTP/1.1 304 Not Modified');
         } else {
             if ($echo) {
