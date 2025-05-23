@@ -157,16 +157,20 @@ class quickio
         if (!$type) {
             $type = 'text/html;charset=utf-8';
         }
+        if ($type == 'json') {
+            $type = 'application/json';
+        }
         if ($sapi == 'nginx') {
+            header('Content-Type: ' . $type);
             echo $str;
             fastcgi_finish_request();
         } elseif ($sapi == 'apache') {
-            ob_end_flush();
-            ob_start();
-            echo $str;
             header('Content-Type: ' . $type);
             header('Connection: close');
             header('Content-Length: ' . ob_get_length());
+            ob_end_flush();
+            ob_start();
+            echo $str;
             ob_flush();
             flush();
         }
@@ -539,7 +543,7 @@ class quickio
         }
         $data = preg_split("/[\n\r]+/", $line, -1, PREG_SPLIT_NO_EMPTY);
         if (!$data) return array();
-        foreach($data as $k=>$v){
+        foreach ($data as $k => $v) {
             $data[$k] = trim($v);
         }
         return $data;
