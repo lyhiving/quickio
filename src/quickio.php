@@ -161,13 +161,13 @@ class quickio
             $type = 'application/json';
         }
         if ($sapi == 'nginx') {
-            header('Content-Type: ' . $type);
+            @header('Content-Type: ' . $type);
             echo $str;
             fastcgi_finish_request();
         } elseif ($sapi == 'apache') {
-            header('Content-Type: ' . $type);
-            header('Connection: close');
-            header('Content-Length: ' . ob_get_length());
+            @header('Content-Type: ' . $type);
+            @header('Connection: close');
+            @header('Content-Length: ' . ob_get_length());
             ob_end_flush();
             ob_start();
             echo $str;
